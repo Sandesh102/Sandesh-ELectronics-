@@ -1,0 +1,227 @@
+{% extends 'products/base.html' %}
+{% load custom_filters %}
+{% load static %}
+
+{% block head %}
+<!-- Add Khalti SDK -->
+<script src="https://khalti.s3.ap-south-1.amazonaws.com/KPG/dist/2020.12.22.0.0.0/khalti-checkout.iffe.js"></script>
+{% endblock %}
+
+{% block start %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Order Summary -->
+        <div class="col-md-4 order-md-2 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-shopping-cart me-2"></i>Order Summary
+                    </h4>
+                </div>
+                <div class="card-body">
+                    {% for item in cart_items %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="my-0">{{ item.product.name }}</h6>
+                            <small class="text-muted">Quantity: {{ item.quantity }}</small>
+                        </div>
+                        <span class="text-muted">Rs. {{ item.product.price }}</span>
+                    </div>
+                    {% endfor %}
+                    <hr class="my-3">
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5 class="fw-bold">Total</h5>
+                        <h5 class="fw-bold text-primary">Rs. {{ total_price }}</h5>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Options -->
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-money-bill me-2"></i>Payment Options
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- QR Code Payment -->
+                    <div class="payment-option mb-4">
+                        <h6 class="mb-3">Option 1: Scan QR Code</h6>
+                        <img src="{% static 'products/images/qr.jpg' %}" alt="Payment QR Code" class="img-fluid mb-3" style="max-width: 200px;">
+                        <p class="text-muted small">Scan to pay with your mobile banking app</p>
+                    </div>
+
+                    <hr>
+
+                    <!-- Khalti Payment -->
+                    <div class="payment-option">
+                        <h6 class="mb-3">Option 2: Pay with Khalti</h6>
+                        <button id="payment-button" class="btn btn-purple w-100">
+                            <img src="{% static 'products/images/khalti-logo.png' %}" alt="Khalti" height="25">
+                            Pay with Khalti
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Delivery Form -->
+        <div class="col-md-8 order-md-1">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-shipping-fast me-2"></i>Delivery Information
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label for="id_delivery_address" class="form-label">Delivery Address</label>
+                                <textarea name="delivery_address" id="id_delivery_address" class="form-control" rows="3" required></textarea>
+                                <div class="invalid-feedback">
+                                    Please enter your delivery address.
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="id_phone_number" class="form-label">Phone Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                    <input type="tel" name="phone_number" id="id_phone_number" class="form-control" required>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Please enter your phone number.
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="id_payment_proof" class="form-label">Payment Proof</label>
+                                <input type="file" name="payment_proof" id="id_payment_proof" class="form-control" accept="image/*" required>
+                                <div class="invalid-feedback">
+                                    Please upload your payment proof.
+                                </div>
+                                <div class="form-text">
+                                    Upload a screenshot of your payment confirmation
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Please make the payment using the QR code above before submitting your order.
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <button class="btn btn-primary w-100" type="submit">
+                                    <i class="fas fa-check-circle me-2"></i>Complete Order
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Khalti Integration Script -->
+<script>
+    var config = {
+        // replace with your public key
+        "publicKey": "YOUR_KHALTI_PUBLIC_KEY",
+        "productIdentity": "{{ order_id }}", // replace with your order ID
+        "productName": "Order Payment",
+        "productUrl": "{{ request.build_absolute_uri }}",
+        "paymentPreference": [
+            "KHALTI",
+            "EBANKING",
+            "MOBILE_BANKING",
+            "CONNECT_IPS",
+            "SCT",
+        ],
+        "eventHandler": {
+            onSuccess (payload) {
+                // hit merchant api for initiating verification
+                console.log(payload);
+                $.ajax({
+                    url: "{% url 'verify_khalti' %}",
+                    type: 'POST',
+                    data: {
+                        'token': payload.token,
+                        'amount': payload.amount,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        if(response.success) {
+                            window.location.href = "{% url 'checkout_success' 0 %}".replace('0', response.order_id);
+                        }
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+            },
+            onError (error) {
+                console.log(error);
+            },
+            onClose () {
+                console.log('widget is closing');
+            }
+        }
+    };
+
+    var checkout = new KhaltiCheckout(config);
+    var btn = document.getElementById("payment-button");
+    btn.onclick = function () {
+        // minimum transaction amount must be 10, i.e 1000 in paisa
+        checkout.show({amount: {{ total_price|multiply:100 }}});
+    }
+</script>
+
+<!-- Add these styles -->
+<style>
+.btn-purple {
+    background-color: #5C2D91;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-purple:hover {
+    background-color: #4a2577;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.payment-option {
+    text-align: center;
+}
+
+.payment-option img {
+    max-width: 100%;
+    height: auto;
+}
+</style>
+
+<script>
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
+{% endblock %}

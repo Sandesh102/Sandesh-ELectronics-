@@ -1,0 +1,51 @@
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+          <img src="{% static 'products/images/logo.png' %}" alt="Yadav Cosmetics Logo">
+          <span class="ms-2">Electro Cart</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+              <a class="nav-link" href="/">Home</a>
+          </li>
+          <li class="nav-item">
+              <a class="nav-link" href="{% url 'products' %}">Products</a>
+          </li>
+          {% if user.is_authenticated %}
+              <li class="nav-item">
+                  <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+              </li>
+          {% else %}
+              <li class="nav-item">
+                  <a class="nav-link" href="{% url 'login' %}">🔒 Login</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="{% url 'register' %}">📝 Sign up</a>
+              </li>
+          {% endif %}
+          <li class="nav-item">
+              <a class="nav-link" href="{% url 'cart' %}">🛒 Cart</a>
+          </li>
+      </ul>
+      <div class="extra-links d-flex align-items-center">
+          <a href="#download">Download App</a>
+          <a href="#help">Help and Support</a>
+      </div>
+      <form class="d-flex me-2" role="search">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-search" type="submit">Search</button>
+      </form>
+      <div class="icon-bar d-flex align-items-center">
+          <a href="https://www.facebook.com/profile.php?id=61560067139161" target="_blank">
+              <img src="./images/icons8-facebook-48.png" alt="Facebook">
+          </a>
+          <a href="https://www.instagram.com/prsnna.69/" target="_blank">
+              <img src="./images/icons8-instagram-50.png" alt="Instagram">
+          </a>
+      </div>
+  </div>
+</nav>

@@ -1,0 +1,169 @@
+{% extends 'products/base.html' %}
+{% load static %}
+
+{% block start %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-body text-center p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-check-circle text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    <h2 class="mb-4">Order Placed Successfully!</h2>
+                    <p class="text-muted mb-4">Thank you for your purchase. Your order has been received and is being processed.</p>
+                    
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Order Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <p class="mb-2"><strong>Order Number:</strong></p>
+                                    <p class="text-muted">#{{ order.id }}</p>
+                                </div>
+                                <div class="col-sm-6">
+                                    <p class="mb-2"><strong>Order Date:</strong></p>
+                                    <p class="text-muted">{{ order.created_at|date:"F d, Y" }}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <p class="mb-2"><strong>Delivery Address:</strong></p>
+                                    <p class="text-muted">{{ order.delivery_address }}</p>
+                                </div>
+                                <div class="col-sm-6">
+                                    <p class="mb-2"><strong>Phone Number:</strong></p>
+                                    <p class="text-muted">{{ order.phone_number }}</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-12">
+                                    <p class="mb-2"><strong>Total Amount:</strong></p>
+                                    <h4 class="text-primary">Rs. {{ order.total_price }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-envelope me-2"></i>
+                        A confirmation email has been sent to your registered email address.
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-center mt-4">
+                        <a href="{% url 'homepage' %}" class="btn btn-outline-primary me-md-2">
+                            <i class="fas fa-home me-2"></i>Continue Shopping
+                        </a>
+                        <a href="{% url 'profile' %}" class="btn btn-primary">
+                            <i class="fas fa-box me-2"></i>Track Order
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Timeline -->
+            <div class="card shadow-sm mt-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Order Timeline</h5>
+                    <div class="timeline">
+                        <div class="timeline-item active">
+                            <i class="fas fa-check-circle text-success"></i>
+                            <p class="mb-0"><strong>Order Placed</strong></p>
+                            <p class="text-muted small">{{ order.created_at|date:"F d, Y H:i" }}</p>
+                        </div>
+                        <div class="timeline-item">
+                            <i class="fas fa-clock text-warning"></i>
+                            <p class="mb-0"><strong>Processing</strong></p>
+                            <p class="text-muted small">Your order is being processed</p>
+                        </div>
+                        <div class="timeline-item">
+                            <i class="fas fa-truck text-primary"></i>
+                            <p class="mb-0"><strong>Shipping</strong></p>
+                            <p class="text-muted small">Coming soon</p>
+                        </div>
+                        <div class="timeline-item">
+                            <i class="fas fa-home text-secondary"></i>
+                            <p class="mb-0"><strong>Delivery</strong></p>
+                            <p class="text-muted small">Expected in 3-5 business days</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Timeline styles */
+.timeline {
+    position: relative;
+    padding: 20px 0;
+}
+
+.timeline-item {
+    padding-left: 50px;
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-item:last-child {
+    margin-bottom: 0;
+}
+
+.timeline-item:before {
+    content: '';
+    position: absolute;
+    left: 20px;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background-color: #e9ecef;
+}
+
+.timeline-item:last-child:before {
+    display: none;
+}
+
+.timeline-item i {
+    position: absolute;
+    left: 10px;
+    top: 0;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.timeline-item.active i {
+    background-color: #28a745;
+    color: white;
+}
+
+/* Card hover effects */
+.card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+/* Button hover effects */
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

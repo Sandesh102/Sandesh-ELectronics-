@@ -1,0 +1,247 @@
+{% extends 'products/base.html' %}
+{% load static %}
+
+{% block start %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <img src="{% static 'products/images/logo.png' %}" alt="Logo" class="mb-3" style="height: 60px;">
+                        <h2 class="fw-bold">Create Account</h2>
+                        <p class="text-muted">Join our community today!</p>
+                    </div>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" class="needs-validation" novalidate enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="id_first_name" class="form-label">First Name</label>
+                                <input type="text" name="first_name" class="form-control {% if form.first_name.errors %}is-invalid{% endif %}" 
+                                       id="id_first_name" value="{{ form.first_name.value|default:'' }}" required>
+                                {% if form.first_name.errors %}
+                                    <div class="invalid-feedback">{{ form.first_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="id_last_name" class="form-label">Last Name</label>
+                                <input type="text" name="last_name" class="form-control {% if form.last_name.errors %}is-invalid{% endif %}" 
+                                       id="id_last_name" value="{{ form.last_name.value|default:'' }}" required>
+                                {% if form.last_name.errors %}
+                                    <div class="invalid-feedback">{{ form.last_name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="id_username" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-user"></i>
+                                </span>
+                                <input type="text" name="username" class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                                       id="id_username" value="{{ form.username.value|default:'' }}" required>
+                            </div>
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">{{ form.username.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="id_email" class="form-label">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                <input type="email" name="email" class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                                       id="id_email" value="{{ form.email.value|default:'' }}" required>
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="id_password1" class="form-label">Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password" name="password1" class="form-control {% if form.password1.errors %}is-invalid{% endif %}" 
+                                       id="id_password1" required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('id_password1')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password1.errors %}
+                                <div class="invalid-feedback d-block">{{ form.password1.errors.0 }}</div>
+                            {% endif %}
+                            <div class="password-strength mt-2" id="password-strength"></div>
+                            <small class="form-text text-muted">
+                                Password must be at least 8 characters and contain letters and numbers.
+                            </small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="id_password2" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                <input type="password" name="password2" class="form-control {% if form.password2.errors %}is-invalid{% endif %}" 
+                                       id="id_password2" required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('id_password2')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            {% if form.password2.errors %}
+                                <div class="invalid-feedback d-block">{{ form.password2.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="id_profile_picture" class="form-label">Profile Picture</label>
+                            <input type="file" name="profile_picture" class="form-control" id="id_profile_picture" accept="image/*">
+                            <div class="form-text">Optional: Upload a profile picture</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="terms" required>
+                                <label class="form-check-label" for="terms">
+                                    I agree to the <a href="#" class="text-primary">Terms of Service</a> and <a href="#" class="text-primary">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <p class="mb-0">Already have an account? 
+                            <a href="{% url 'login' %}" class="text-primary text-decoration-none">Login</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Sign Up Options -->
+            <div class="text-center mt-4">
+                <p class="text-muted mb-4">Or sign up with</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="#" class="btn btn-outline-primary">
+                        <i class="fab fa-facebook-f me-2"></i>Facebook
+                    </a>
+                    <a href="#" class="btn btn-outline-danger">
+                        <i class="fab fa-google me-2"></i>Google
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = event.currentTarget.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Password strength indicator
+document.getElementById('id_password1').addEventListener('input', function() {
+    const password = this.value;
+    const strengthDiv = document.getElementById('password-strength');
+    let strength = 0;
+    let message = '';
+
+    // Length check
+    if (password.length >= 8) strength += 1;
+    // Uppercase check
+    if (/[A-Z]/.test(password)) strength += 1;
+    // Lowercase check
+    if (/[a-z]/.test(password)) strength += 1;
+    // Number check
+    if (/[0-9]/.test(password)) strength += 1;
+    // Special character check
+    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+    switch(strength) {
+        case 0:
+        case 1:
+            message = '<div class="text-danger">Weak password</div>';
+            break;
+        case 2:
+        case 3:
+            message = '<div class="text-warning">Medium password</div>';
+            break;
+        case 4:
+        case 5:
+            message = '<div class="text-success">Strong password</div>';
+            break;
+    }
+
+    strengthDiv.innerHTML = message;
+});
+
+// Real-time password match validation
+document.getElementById('id_password2').addEventListener('input', function() {
+    const password1 = document.getElementById('id_password1').value;
+    const password2 = this.value;
+    const feedback = document.createElement('div');
+    
+    if (password2.length > 0) {
+        if (password1 === password2) {
+            this.classList.remove('is-invalid');
+            this.classList.add('is-valid');
+            feedback.className = 'valid-feedback d-block';
+            feedback.textContent = 'Passwords match!';
+        } else {
+            this.classList.remove('is-valid');
+            this.classList.add('is-invalid');
+            feedback.className = 'invalid-feedback d-block';
+            feedback.textContent = 'Passwords do not match';
+        }
+        
+        // Update or add feedback message
+        const existingFeedback = this.parentNode.nextElementSibling;
+        if (existingFeedback && existingFeedback.classList.contains('invalid-feedback')) {
+            existingFeedback.replaceWith(feedback);
+        } else {
+            this.parentNode.parentNode.appendChild(feedback);
+        }
+    }
+});
+</script>
+
+<style>
+.password-strength {
+    font-size: 0.875rem;
+}
+</style>
+
+<link rel="stylesheet" href="{% static 'products/css/auth.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}

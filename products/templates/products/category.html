@@ -1,0 +1,57 @@
+{% extends 'products/base.html' %}
+{% load static %}
+
+{% block start %}
+<html>
+  <head>
+    <link rel="stylesheet" href="{% static 'products/css/products_style.css' %}">
+  </head>
+  <body>
+    <div class="container py-4">
+      <!-- Filter Form -->
+      <div class="filter-form mb-4">
+        <form method="GET" action="{% url 'category' %}">
+          <!-- Category Filter -->
+          <div class="form-group">
+            <label for="category">Category</label>
+            <select name="category" id="category" class="form-control">
+              <option value="">All Categories</option>
+              {% for category in categories %}
+                <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:'s' %}selected{% endif %}>{{ category.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+  
+          <!-- Price Filter -->
+          <div class="form-group">
+            <label for="min_price">Min Price</label>
+            <input type="number" name="min_price" id="min_price" class="form-control" placeholder="Min Price" value="{{ request.GET.min_price }}">
+          </div>
+  
+          <div class="form-group">
+            <label for="max_price">Max Price</label>
+            <input type="number" name="max_price" id="max_price" class="form-control" placeholder="Max Price" value="{{ request.GET.max_price }}">
+          </div>
+        <br>
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary" style="background-color: #0866FF; border-color: #0866FF;">Apply Filters</button>
+
+        </form>
+      </div>
+  
+      <!-- Display Products -->
+      <div class="product-grid">
+        {% for product in products %}
+        <a href="{% url 'product_detail' product.slug %}" class="product-link">
+          <div class="product">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            <h2>{{ product.name }}</h2>
+            <p class="price">Rs{{ product.price }}</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+  
+</html>
+{% endblock %}
