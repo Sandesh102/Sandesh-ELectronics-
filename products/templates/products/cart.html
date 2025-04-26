@@ -1,58 +1,69 @@
 {% extends 'products/base.html' %}
 {% load static %}
+{% block head %}
+<link rel="stylesheet" href="{% static 'products/css/cart_style.css' %}">
+{% endblock %}
+
 {% block start %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopping Cart</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'products/css/cart_style.css' %}">
-</head>
-<body>
 <div class="container py-4">
+    <!-- Logo section -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <img src="{% static 'products/images/logo.jpg' %}" alt="Website Logo" class="img-fluid" style="max-height: 100px;">
+        </div>
+    </div>
+    
     <div class="row">
         <div class="col-lg-8">
-            <h5 class="mb-3">
-                <input type="checkbox"> Select All ({{ cart_items|length }} Item(s))
-                <button class="btn btn-danger btn-sm float-end">Delete</button>
-            </h5>
-            <hr>
+            <form id="bulk-delete-form" method="POST" action="{% url 'bulk_delete_cart' %}">
+                {% csrf_token %}
+                <h5 class="mb-3">
+                    <input type="checkbox" id="select-all"> Select All ({{ cart_items|length }} Item(s))
+                    <button type="submit" id="delete-selected" class="btn btn-danger btn-sm float-end" disabled>Delete</button>
+                </h5>
+                <hr>
 
-            {% for item in cart_items %}
-            <div class="mb-4 p-3 border rounded bg-white">
-                <div class="d-flex">
-                    <input type="checkbox" class="me-3">
-                    <div class="me-3">
-                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail" style="width: 100px; height: 100px;">
-                    </div>
-                    <div class="flex-grow-1">
-                        <h6 class="item-name">{{ item.product.name }}</h6>
-                        <div class="d-flex align-items-center">
-                            <span class="price me-2">Rs. {{ item.product.price }}</span>
-                            <span class="original-price">Rs. {{ item.product.original_price }}</span>
+                {% for item in cart_items %}
+                <div class="mb-4 p-3 border rounded bg-white">
+                    <div class="d-flex">
+                        <input type="checkbox" name="selected_items" value="{{ item.id }}" class="item-checkbox me-3">
+                        <div class="me-3">
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail" style="width: 100px; height: 100px;">
                         </div>
-                    </div>
-                    <div class="d-flex align-items-center flex-column">
-                        <div class="btn-group mb-2">
-                            <form method="POST" action="{% url 'update_cart_item' item.id %}">
+                        <div class="flex-grow-1">
+                            <h6 class="item-name">{{ item.product.name }}</h6>
+                            <div class="d-flex align-items-center">
+                                <span class="price me-2">Rs. {{ item.product.price }}</span>
+                                <span class="original-price">Rs. {{ item.product.original_price }}</span>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center flex-column">
+                            <div class="d-flex align-items-center mb-2">
+                                <form method="POST" action="{% url 'update_cart_item' item.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="decrease">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">-</button>
+                                </form>
+                                
+                                <span class="mx-2">{{ item.quantity }}</span>
+                                
+                                <form method="POST" action="{% url 'update_cart_item' item.id %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="increase">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">+</button>
+                                </form>
+                            </div>
+                            <form method="POST" action="{% url 'remove_from_cart' item.id %}">
                                 {% csrf_token %}
-                                <button type="submit" class="btn btn-light">-</button>
-                                <span>{{ item.quantity }}</span>
-                                <button type="submit" class="btn btn-light">+</button>
+                                <button type="submit" class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Remove
+                                </button>
                             </form>
                         </div>
-                        <form method="POST" action="{% url 'remove_from_cart' item.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger btn-sm">
-                                <i class="bi bi-trash"></i> Remove
-                            </button>
-                        </form>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
+                {% endfor %}
+            </form>
         </div>
 
         <div class="col-lg-4">
@@ -73,18 +84,45 @@
                 </div>
                 
                 <hr>
-                <div class="d-flex justify-content-between mb-3">
-                    <span><strong>Total</strong></span>
-                  
-                </div>
-                <button class="btn btn-custom w-100"><a href="{% url 'checkout' %}" class="btn btn-custom w-100">Proceed to Checkout</a>
-                </button>
+                <a href="{% url 'checkout' %}" class="btn btn-custom w-100">Proceed to Checkout</a>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% block scripts %}
+<script>
+    // Select all checkbox functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const selectAllCheckbox = document.getElementById('select-all');
+        const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+        const deleteButton = document.getElementById('delete-selected');
+        
+        // Toggle all checkboxes
+        selectAllCheckbox.addEventListener('change', function() {
+            const isChecked = this.checked;
+            
+            itemCheckboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+            
+            // Enable/disable delete button
+            deleteButton.disabled = !isChecked;
+        });
+        
+        // Individual checkbox change
+        itemCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                // Update select all checkbox state
+                const allChecked = Array.from(itemCheckboxes).every(cb => cb.checked);
+                selectAllCheckbox.checked = allChecked;
+                
+                // Enable delete button if at least one checkbox is checked
+                const anyChecked = Array.from(itemCheckboxes).some(cb => cb.checked);
+                deleteButton.disabled = !anyChecked;
+            });
+        });
+    });
+</script>
 {% endblock %}

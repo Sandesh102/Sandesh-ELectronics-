@@ -15,7 +15,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from .forms import *
-@login_required(login_url='login')
+
 def homepage(request):
     # Featured Products (most reviewed)
     featured_products = Product.objects.annotate(
@@ -233,23 +233,19 @@ def remove_from_cart(request, item_id):
     item.delete()
     return redirect('cart')
 
-def cart(request):
-    # Get the cart items for the logged-in user
-    cart_items = CartItem.objects.filter(user=request.user)
-
-    # Calculate the total price
-    total_price = sum(item.product.price * item.quantity for item in cart_items)
-
-    return render(request, 'products/cart.html', {'cart_items': cart_items, 'total_price': total_price})
-
+@login_required
 def update_cart_item(request, item_id):
     item = get_object_or_404(CartItem, id=item_id, user=request.user)
     if request.method == "POST":
         action = request.POST.get('action')
+        print(f"Action received: {action}")  # Debug print
+        
         if action == "increase":
             item.quantity += 1
+            messages.success(request, f"Quantity increased to {item.quantity}")
         elif action == "decrease" and item.quantity > 1:
             item.quantity -= 1
+            messages.success(request, f"Quantity decreased to {item.quantity}")
         item.save()
     return redirect('cart')  # Redirect back to the cart page
 
@@ -323,3 +319,12 @@ def verify_khalti(request):
         })
 
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+@login_required
+def bulk_delete_cart(request):
+    if request.method == 'POST':
+        selected_items = request.POST.getlist('selected_items')
+        if selected_items:
+            CartItem.objects.filter(id__in=selected_items, user=request.user).delete()
+            messages.success(request, f"{len(selected_items)} items removed from your cart.")
+    return redirect('cart')

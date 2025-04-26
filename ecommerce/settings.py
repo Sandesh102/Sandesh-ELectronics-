@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-1$70y7tjv-)dtko9k$2tr=2s4==1ji=dsseus)23as9h6=ndaw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['sandesh12.pythonanywhere.com']
+
 
 
 # Application definition
@@ -89,16 +90,10 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'OPTIONS': {
+            'min_length': 8,
+        }
     },
 ]
 
@@ -147,3 +142,6 @@ LOGOUT_REDIRECT_URL = 'homepage'
 # Khalti Configuration
 KHALTI_SECRET_KEY = "your_secret_key_here"
 KHALTI_PUBLIC_KEY = "your_public_key_here"
+
+# Email Configuration - Development (prints to console)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

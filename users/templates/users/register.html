@@ -89,7 +89,7 @@
                             {% endif %}
                             <div class="password-strength mt-2" id="password-strength"></div>
                             <small class="form-text text-muted">
-                                Password must be at least 8 characters and contain letters and numbers.
+                                Password must be at least 8 characters long.
                             </small>
                         </div>
 
@@ -178,29 +178,11 @@ document.getElementById('id_password1').addEventListener('input', function() {
     let message = '';
 
     // Length check
-    if (password.length >= 8) strength += 1;
-    // Uppercase check
-    if (/[A-Z]/.test(password)) strength += 1;
-    // Lowercase check
-    if (/[a-z]/.test(password)) strength += 1;
-    // Number check
-    if (/[0-9]/.test(password)) strength += 1;
-    // Special character check
-    if (/[^A-Za-z0-9]/.test(password)) strength += 1;
-
-    switch(strength) {
-        case 0:
-        case 1:
-            message = '<div class="text-danger">Weak password</div>';
-            break;
-        case 2:
-        case 3:
-            message = '<div class="text-warning">Medium password</div>';
-            break;
-        case 4:
-        case 5:
-            message = '<div class="text-success">Strong password</div>';
-            break;
+    if (password.length >= 8) {
+        strength = 1;
+        message = '<div class="text-success">Password meets minimum length requirement</div>';
+    } else {
+        message = '<div class="text-danger">Password must be at least 8 characters</div>';
     }
 
     strengthDiv.innerHTML = message;
