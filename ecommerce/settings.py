@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-1$70y7tjv-)dtko9k$2tr=2s4==1ji=dsseus)23as9h6=ndaw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['sandesh12.pythonanywhere.com']
+ALLOWED_HOSTS = []
 
 
 
@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'ecommerce.urls'
@@ -121,8 +122,18 @@ MEDIA_URL = '/media/'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+# settings.py
+# settings.py
 
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For collectstatic
+
+# List of directories where Django will look for static files
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'users/static'),    # Static files for users app
+    os.path.join(BASE_DIR, 'products/static'), # Static files for products app
+    # Add any additional static directories here
+]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
